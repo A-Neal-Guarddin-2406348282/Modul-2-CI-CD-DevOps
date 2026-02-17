@@ -10,19 +10,17 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import id.ac.ui.cs.advprog.eshop.model.Product;
 
-@ExtendWith(MockitoExtension.class)
 class ProductRepositoryTest {
 
-    @InjectMocks
-    ProductRepository productRepository;
+    private ProductRepository productRepository;
+
+    // Mockito tidak perlu dipakai
     @BeforeEach
     void setUp() {
+        productRepository = new ProductRepository();
     }
 
     @Test
