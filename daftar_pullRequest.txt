@@ -1,0 +1,4 @@
+Functional test (https://github.com/A-Neal-Guarddin-2406348282/Modul-1-Coding-Standards/pull/4) - oleh @CerebrumCoder
+Delete product (https://github.com/A-Neal-Guarddin-2406348282/Modul-1-Coding-Standards/pull/3) - oleh @CerebrumCoder
+List product (https://github.com/A-Neal-Guarddin-2406348282/Modul-1-Coding-Standards/pull/2) - oleh @CerebrumCoder
+List product (https://github.com/A-Neal-Guarddin-2406348282/Modul-1-Coding-Standards/pull/1) - oleh @CerebrumCoder

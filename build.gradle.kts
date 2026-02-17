@@ -5,8 +5,14 @@ val junitJupiterVersion = "5.9.1"
 
 plugins {
     java
+    application
     id("org.springframework.boot") version "3.5.10"
     id("io.spring.dependency-management") version "1.1.7"
+}
+
+application {
+    // This points Gradle to your entry point
+    mainClass.set("id.ac.ui.cs.advprog.eshop.EshopApplication")
 }
 
 group = "id.ac.ui.cs.advprog"
