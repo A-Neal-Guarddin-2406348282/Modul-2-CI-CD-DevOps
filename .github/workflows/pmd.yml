@@ -1,0 +1,30 @@
+name: PMD (Code Quality)
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  pmd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run PMD
+        uses: pmd/pmd-github-action@v2.0.0
+        with:
+          pmdVersion: "7.0.0-rc4"
+          sourcePath: "src/main/java"
+          rulesets: "rulesets/java/quickstart.xml"
+          analyzeModifiedFilesOnly: false
+          uploadSarif: true
+          failOnViolation: true
