@@ -5,15 +5,15 @@ val junitJupiterVersion = "5.9.1"
 
 plugins {
     java
-    application
+    jacoco
     id("org.springframework.boot") version "3.5.10"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-application {
-    // This points Gradle to your entry point
-    mainClass.set("id.ac.ui.cs.advprog.eshop.EshopApplication")
-}
+//application {
+//    // This points Gradle to your entry point
+//    mainClass.set("id.ac.ui.cs.advprog.eshop.EshopApplication")
+//}
 
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
@@ -51,24 +51,14 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:${junitJupiterVersion}")
 }
 
-tasks.register<Test>("unitTest") {
-    description = "Runs unit tests."
-    group = "verification"
-
+tasks.test {
     filter {
         excludeTestsMatching("*FunctionalTest")
     }
+
+    finalizedBy(tasks.jacocoTestReport)
 }
 
-tasks.register<Test>("functionalTest") {
-    description = "Runs functional tests."
-    group = "verification"
-
-    filter {
-        includeTestsMatching("*FunctionalTest")
-    }
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
 }
