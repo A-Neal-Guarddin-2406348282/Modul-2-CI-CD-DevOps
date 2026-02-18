@@ -65,3 +65,28 @@ Tidak ada angka baku. Tapi yang lebih penting:
 
     Berdasarkan cara ini, harapannya test suite baru tetap ringkas, mudah dirawat,
 dan lebih tahan terhadap perubahan UI.
+
+# Refleksi 3 (CI/CD & Code Quality)
+
+## 1) Code quality issue yang saya perbaiki + strategi saya
+Selama exercise ini saya fokus beresin temuan dari static analysis (PMD) yang sifatnya “small but noisy”, supaya pipeline bersih dan kode lebih rapi.
+
+Beberapa isu yang saya perbaiki:
+- **Modifier `public` yang tidak perlu di interface** (Java interface method sudah otomatis `public`).  
+  Saya hapus modifier yang redundant supaya nggak memunculkan warning dan biar konsisten dengan konvensi Java. (lihat [src/main/java/id/ac/ui/cs/advprog/eshop/service/ProductService.java](src/main/java/id/ac/ui/cs/advprog/eshop/service/ProductService.java))
+- **Import yang tidak dipakai / wildcard import** di controller.  
+  Saya rapikan import dan buang yang tidak kepakai karena bikin warning dan bikin file terlihat “berantakan”. (lihat [src/main/java/id/ac/ui/cs/advprog/eshop/controller/ProductController.java](src/main/java/id/ac/ui/cs/advprog/eshop/controller/ProductController.java))
+- **Parameter yang tidak dipakai** (contoh: ada parameter method yang sebenarnya tidak digunakan).  
+  Saya hapus supaya signature lebih bersih dan tidak misleading.
+
+Strategi saya waktu fixing:
+1) Lihat list warning/annotation dari workflow quality gate dulu.  
+2) Pilih yang paling aman (tanpa mengubah behaviour) untuk dikerjakan lebih dulu.  
+3) Setiap perubahan saya commit kecil-kecil, lalu push untuk memastikan workflow jalan dan warning-nya benar-benar hilang.
+
+## 2) Apakah workflow saya sudah memenuhi CI dan CD?
+Menurut saya, workflow ini sudah memenuhi **Continuous Integration** karena setiap ada push ke branch utama, GitHub Actions menjalankan proses otomatis (minimal: analisis kualitas kode lewat workflow [PMD](.github/workflows/pmd.yml); dan test suite kalau workflow test diaktifkan). Jadi integrasi perubahan tidak menunggu manual, dan masalah bisa ketahuan lebih cepat dari awal.
+
+Untuk **Continuous Deployment**, implementasi saya juga sudah mendekati definisi CD karena ada workflow deploy otomatis ke PaaS (Heroku) lewat [Deploy to Heroku (Docker)](.github/workflows/deploy-heroku.yml) ketika ada push ke branch yang ditargetkan. Dengan begitu, perubahan yang sudah lolos pipeline bisa langsung “nyampe” ke environment deploy tanpa langkah manual.
+
+Tapi saya juga merasa ini masih CD versi sederhana: belum ada pemisahan environment (mis. staging vs production), belum ada approval gate, dan belum ada strategi rollback otomatis kalau runtime error terjadi. Jadi dari sisi otomatisasi deploy sudah jalan, tapi dari sisi kontrol rilis dan reliability masih bisa ditingkatkan.
