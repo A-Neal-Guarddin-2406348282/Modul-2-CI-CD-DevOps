@@ -17,5 +17,6 @@ USER ${USER_NAME}
 WORKDIR /opt/advshop
 COPY --from=builder --chown=${USER_UID}:${USER_GID} /src/advshop/build/libs/*.jar app.jar
 
-# Khusus untuk heroku. Sedikit berbeda dengan Dockerfile yang dikasih dari modul
+# Khusus untuk heroku. Sedikit berbeda dengan Dockerfile yang dikasih dari modul.
+# Memaksa Spring Boot memakai port yang dikasih Heroku
 CMD java -Dserver.port=${PORT} -Xmx300m -Xss512k -jar app.jar
