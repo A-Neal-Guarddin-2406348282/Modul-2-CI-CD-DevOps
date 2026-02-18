@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+// Semoga berhasil
 @Service
 public class ProductServiceImpl implements ProductService {
     @Autowired
