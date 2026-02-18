@@ -17,7 +17,7 @@ class ProductRepositoryTest {
 
     private ProductRepository productRepository;
 
-    // Mockito tidak perlu dipakai
+    // Mockito tidak perlu dipakai. Di commit sebelumnnya sudah hilang juga Mockitonya. Awalnya masih ada
     @BeforeEach
     void setUp() {
         productRepository = new ProductRepository();
