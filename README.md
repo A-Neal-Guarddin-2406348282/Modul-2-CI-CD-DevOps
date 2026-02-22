@@ -88,8 +88,8 @@ Strategi saya waktu fixing:
 3) Setiap perubahan saya commit kecil-kecil, lalu push untuk mastiin github workflow tetap jalan dan warning-nya benar-benar hilang.
 
 ## 2) Apakah workflow saya sudah memenuhi CI dan CD?
-Menurut saya, workflow ini sudah memenuhi **Continuous Integration** karena setiap ada push ke branch utama, GitHub Actions menjalankan proses otomatis (minimal: analisis kualitas kode lewat workflow [PMD](.github/workflows/pmd.yml); dan test suite kalau workflow test diaktifkan). Jadi integrasi perubahan tidak menunggu manual, dan masalah bisa ketahuan lebih cepat dari awal.
+Menurut saya, workflow ini sudah memenuhi **Continuous Integration** karena setiap ada push/PR, GitHub Actions menjalankan proses otomatis untuk cek kualitas kode lewat workflow [PMD](.github/workflows/pmd.yml). Dengan begitu, masalah bisa ketahuan lebih cepat sebelum perubahan masuk ke branch utama.
 
-Untuk **Continuous Deployment**, implementasi saya juga sudah mendekati definisi CD karena ada workflow deploy otomatis ke PaaS (Heroku) lewat [Deploy to Heroku (Docker)](.github/workflows/deploy-heroku.yml) ketika ada push ke branch yang ditargetkan. Dengan begitu, perubahan yang sudah lolos pipeline bisa langsung “nyampe” ke environment deploy tanpa langkah manual.
+Untuk **Continuous Deployment**, saya pakai **Heroku GitHub Automatic Deploy** (buildpack), jadi setiap ada perubahan yang masuk ke branch `main/master` di GitHub, Heroku akan otomatis build dan release versi terbaru. Karena deploy-nya via buildpack (bukan container), aplikasi dijalankan memakai command dari [Procfile](Procfile), dan versi Java dipin lewat [system.properties](system.properties).
 
-Tapi saya juga merasa ini masih CD versi sederhana: belum ada pemisahan environment (misalnya seperti, staging vs production), belum ada approval gate, dan belum ada strategi rollback otomatis kalau runtime error terjadi. Jadi dari sisi otomatisasi deploy sudah jalan, tapi dari sisi kontrol rilis dan reliability masih bisa ditingkatkan lagi.
+Catatan: workflow [Deploy to Heroku (Docker)](.github/workflows/deploy-heroku.yml) saya nonaktifkan (manual saja) karena deployment-nya sudah ditangani langsung oleh Heroku GitHub integration, jadi tidak dobel jalur deploy.
