@@ -2,7 +2,13 @@ name: Deploy to Heroku (Docker)
 
 on:
   workflow_dispatch:
-# Ini 
+
+# Ini tanpa Dockerfile. Lebih simpel dan sangat pas untuk projek yang relatif masih biasa. 
+# Kelebihan:
+# - Build/deploy cepat dan “native” di Heroku.
+# - Lebih sedikit yang perlu kamu maintain (OS package, base image, dll).
+# - Setup lebih simpel untuk Spring Boot standar.
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
