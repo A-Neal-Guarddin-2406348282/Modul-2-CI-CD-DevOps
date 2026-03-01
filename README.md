@@ -1,4 +1,5 @@
 Neal Guarddin\
+Pemrograman Lanjut A\
 2406348282
 
 # Link Website:
@@ -152,4 +153,4 @@ High-level module (service/controller) bergantung pada abstraksi:
   Contoh: Apabila pembuatn id "hardcoded" UUID di banyak tempat, saat kebijakan id berubah, banyak file harus diubah dan risiko bug yang harus di solve jadi meningkat
 
 4. **Interface terlalu besar, jadinya membebani client (risiko melanggar ISP)**
-  Jika semua kebutuhan digabung dalam satu interface besar, client yang cuma butuh 'findAll()' tetap "dipaksa tahu" method lain (create/update/delete). Ini yang ngebuat desain makin sulit dirawat
+  Jika semua kebutuhan digabung dalam satu interface besar, client yang cuma butuh 'findAll()' tetap "dipaksa tahu" method lain (create/update/delete). Ini yang ngebuat desain makin sulit dirawat.
