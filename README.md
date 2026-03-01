@@ -93,3 +93,63 @@ Menurut saya, workflow ini sudah memenuhi **Continuous Integration** karena seti
 Untuk **Continuous Deployment**, saya pakai **Heroku GitHub Automatic Deploy** (buildpack), jadi setiap ada perubahan yang masuk ke branch `main/master` di GitHub, Heroku akan otomatis build dan release versi terbaru. Karena deploy-nya via buildpack (bukan container), aplikasi dijalankan memakai command dari [Procfile](Procfile), dan versi Java dipin lewat [system.properties](system.properties).
 
 Catatan: workflow [Deploy to Heroku (Docker)](.github/workflows/deploy-heroku.yml) saya nonaktifkan (manual saja) karena deployment-nya sudah ditangani langsung oleh Heroku GitHub integration, jadi tidak dobel jalur deploy.
+
+# Refleksi 4 (SOLID)
+
+## 1) Prinsip SOLID apa yang saya terapkan di project ini?
+
+### **SRP (Single Responsibility Principle)**
+Disini saya memisahkan tanggung jawab tiap layer:
+- **Controller** hanya mengurus HTTP request/response dan view: [`id.ac.ui.cs.advprog.eshop.controller.ProductController`](src/main/java/id/ac/ui/cs/advprog/eshop/controller/ProductController.java)
+- **Service** mengurus logika aplikasi dan menjadi penghubung controller-repository: [`id.ac.ui.cs.advprog.eshop.service.ProductServiceImpl`](src/main/java/id/ac/ui/cs/advprog/eshop/service/ProductServiceImpl.java)
+- **Repository** mengurus penyimpanan data (in-memory): [`id.ac.ui.cs.advprog.eshop.repository.InMemoryProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/InMemoryProductRepository.java)
+- **Id generation** dipisah ke abstraction khusus: [`id.ac.ui.cs.advprog.eshop.util.IdGenerator`](src/main/java/id/ac/ui/cs/advprog/eshop/util/IdGenerator.java) dan implementasinya [`id.ac.ui.cs.advprog.eshop.util.UuidIdGenerator`](src/main/java/id/ac/ui/cs/advprog/eshop/util/UuidIdGenerator.java)
+
+### **OCP (Open/Closed Principle)**
+Beberapa bagian dibuat *extendable* tanpa mengubah kode lama:
+- Repository dibuat berbasis interface: [`id.ac.ui.cs.advprog.eshop.repository.ProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/ProductRepository.java) sehingga bisa menambah implementasi baru (mis. DB/JPA) tanpa perlu mengubah controller/service.
+- `IdGenerator` berbasis interface, sehingga strategi pembuatan id bisa ditambah (mis. incremental ID) tanpa mengubah logika create di repository.
+
+### **LSP (Liskov Substitution Principle)**
+Karena service bergantung pada interface [`id.ac.ui.cs.advprog.eshop.repository.ProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/ProductRepository.java),
+maka implementasi lain yang memenuhi kontrak yang sama dapat menggantikan [`id.ac.ui.cs.advprog.eshop.repository.InMemoryProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/InMemoryProductRepository.java) tanpa merusak perilaku sistem (contoh: `findAll()`, `findProductById()`, `updateProduct()`, `deleteProduct()` tetap tersedia dan konsisten).
+
+### **ISP (Interface Segregation Principle)**
+Saat ini interface service masih digabung dalam [`id.ac.ui.cs.advprog.eshop.service.ProductService`](src/main/java/id/ac/ui/cs/advprog/eshop/service/ProductService.java).
+Namun saya menghindari “client” (controller/test) bergantung ke detail repository secara langsung: controller tetap menggunakan service.
+Catatan improvement jika ingin lebih ISP: memecah `ProductService` menjadi `ProductQueryService` dan `ProductCommandService` supaya client hanya tergantung method yang dibutuhkan sesuai namanya yaitu Query (akses database) dan Command (perintah)
+
+### **DIP (Dependency Inversion Principle)**
+High-level module (service/controller) bergantung pada abstraksi:
+- Service bergantung pada interface repository: [`id.ac.ui.cs.advprog.eshop.service.ProductServiceImpl`](src/main/java/id/ac/ui/cs/advprog/eshop/service/ProductServiceImpl.java) -> [`id.ac.ui.cs.advprog.eshop.repository.ProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/ProductRepository.java)
+- Controller bergantung pada interface service: [`id.ac.ui.cs.advprog.eshop.controller.ProductController`](src/main/java/id/ac/ui/cs/advprog/eshop/controller/ProductController.java) -> [`id.ac.ui.cs.advprog.eshop.service.ProductService`](src/main/java/id/ac/ui/cs/advprog/eshop/service/ProductService.java)
+
+
+## 2) Keuntungan menerapkan SOLID pada project ini (dengan contoh)
+
+1. **Lebih mudah di-test (unit test lebih stabil dan cepat)**
+  Karena service tidak "terikat" ke detail penyimpanan, repository bisa di-*mock*. Contoh: test service menggunakan mock [`id.ac.ui.cs.advprog.eshop.repository.ProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/ProductRepository.java) di [`ProductServiceImplTest`](src/test/java/id/ac/ui/cs/advprog/eshop/ProductServiceImplTest.java).
+
+2. **Perubahan tidak menimbulkan efek domino**
+  Jika suatu saat ganti dari in-memory ke database, cukup buat implementasi baru untuk [`id.ac.ui.cs.advprog.eshop.repository.ProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/ProductRepository.java).
+  Controller/service tidak harus ikut diubah, karena mereka bergantung ke interface.
+
+3. **Lebih mudah menambah fitur (extend, bukan edit)**
+  ContohL strategi id bisa diganti dengan menambahkan implementasi baru dari [`id.ac.ui.cs.advprog.eshop.util.IdGenerator`](src/main/java/id/ac/ui/cs/advprog/eshop/util/IdGenerator.java),
+  tanpa mengutak-atik logika utama create di [`id.ac.ui.cs.advprog.eshop.repository.InMemoryProductRepository`](src/main/java/id/ac/ui/cs/advprog/eshop/repository/InMemoryProductRepository.java).
+
+
+
+## 3) Kerugian jika tidak menerapkan SOLID (dengan contoh)
+
+1. **Tight coupling -> susah diganti/di-maintain**
+  Jika controller langsung akses struktur datar repository (misal list internal), perubahan kecil di repository bisa memaksa perubahan di banyak file.
+
+2. **Sulit unit testing**
+  Kalau service bergantung pada concrete class (bukan interface), akan sulit membuat mock/stub. Akibatnya test menjadi lebih lambat (cenderung jadi integration test) dan lebih rapuh.
+
+3. **Perubahan kecil memicu banyak modifikasi (melanggar OCP)**
+  Contoh: Apabila pembuatn id "hardcoded" UUID di banyak tempat, saat kebijakan id berubah, banyak file harus diubah dan risiko bug yang harus di solve jadi meningkat
+
+4. **Interface terlalu besar, jadinya membebani client (risiko melanggar ISP)**
+  Jika semua kebutuhan digabung dalam satu interface besar, client yang cuma butuh 'findAll()' tetap "dipaksa tahu" method lain (create/update/delete). Ini yang ngebuat desain makin sulit dirawat
