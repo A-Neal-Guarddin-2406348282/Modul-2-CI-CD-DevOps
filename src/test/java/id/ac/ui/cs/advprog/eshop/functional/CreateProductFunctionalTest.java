@@ -46,7 +46,7 @@ class CreateProductFunctionalTest {
         // Aksi: Buat halaman baru
         driver.get(baseUrl + "/product/create");
 
-        // Isi form, menyesuaikan id di CreateProduct.html
+        // Isi form, menyesuaikan id di createProduct.html
         driver.findElement(By.id("nameInput")).sendKeys(productName);
 
         WebElement qtyInput = driver.findElement(By.id("quantityInput"));

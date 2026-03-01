@@ -6,7 +6,7 @@ import id.ac.ui.cs.advprog.eshop.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -21,14 +21,14 @@ class ProductControllerTest {
     @Autowired
     MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     ProductService productService;
 
     @Test
     void testCreateProductPage() throws Exception {
         mockMvc.perform(get("/product/create"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("CreateProduct"))
+                .andExpect(view().name("createProduct"))
                 .andExpect(model().attributeExists("product"));
     }
 
@@ -49,7 +49,7 @@ class ProductControllerTest {
 
         mockMvc.perform(get("/product/list"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("ProductList"))
+                .andExpect(view().name("productList"))
                 .andExpect(model().attributeExists("products"));
 
         verify(productService).findAll();
@@ -62,7 +62,7 @@ class ProductControllerTest {
 
         mockMvc.perform(get("/product/edit/id-1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("EditProduct"))
+                .andExpect(view().name("editProduct"))
                 .andExpect(model().attributeExists("product"));
     }
 
