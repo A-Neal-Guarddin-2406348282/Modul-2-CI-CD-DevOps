@@ -2,6 +2,8 @@ package id.ac.ui.cs.advprog.eshop;
 
 import id.ac.ui.cs.advprog.eshop.controller.ProductController;
 import id.ac.ui.cs.advprog.eshop.model.Product;
+import id.ac.ui.cs.advprog.eshop.service.ProductCommandService;
+import id.ac.ui.cs.advprog.eshop.service.ProductQueryService;
 import id.ac.ui.cs.advprog.eshop.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -22,7 +25,10 @@ class ProductControllerTest {
     MockMvc mockMvc;
 
     @MockitoBean
-    ProductService productService;
+    ProductQueryService productQueryService;
+
+    @MockitoBean
+    ProductCommandService productCommandService;
 
     @Test
     void testCreateProductPage() throws Exception {
@@ -40,25 +46,25 @@ class ProductControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:list"));
 
-        verify(productService).create(any(Product.class));
+        verify(productCommandService).create(any(Product.class));
     }
 
     @Test
     void testProductListPage() throws Exception {
-        when(productService.findAll()).thenReturn(List.of(new Product()));
+        when(productQueryService.findAll()).thenReturn(List.of(new Product()));
 
         mockMvc.perform(get("/product/list"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("productList"))
                 .andExpect(model().attributeExists("products"));
 
-        verify(productService).findAll();
+        verify(productQueryService).findAll();
     }
 
     @Test
     void testEditProductPage_WhenFound() throws Exception {
         Product p = new Product();
-        when(productService.findProductById("id-1")).thenReturn(p);
+        when(productQueryService.findProductById("id-1")).thenReturn(p);
 
         mockMvc.perform(get("/product/edit/id-1"))
                 .andExpect(status().isOk())
@@ -68,7 +74,7 @@ class ProductControllerTest {
 
     @Test
     void testEditProductPage_WhenNotFound() throws Exception {
-        when(productService.findProductById("missing")).thenReturn(null);
+        when(productQueryService.findProductById("missing")).thenReturn(null);
 
         mockMvc.perform(get("/product/edit/missing"))
                 .andExpect(status().is3xxRedirection())
@@ -84,7 +90,7 @@ class ProductControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/product/list"));
 
-        verify(productService).updateProduct(any(Product.class));
+        verify(productCommandService).updateProduct(any(Product.class));
     }
 
     @Test
@@ -93,6 +99,6 @@ class ProductControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/product/list"));
 
-        verify(productService).deleteProduct("id-1");
+        verify(productCommandService).deleteProduct("id-1");
     }
 }
